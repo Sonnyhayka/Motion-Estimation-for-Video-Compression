@@ -25,8 +25,8 @@ methods (Test)
 
     function sourceFilesArePresent(testCase)
         root = fileparts(fileparts(mfilename('fullpath')));
-        required = {'hw3Params.m', 'loadWalkSequence.m', 'setupProject.m', ...
-            'checkProjectCode.m'};
+        required = {'hw3Params.m', 'frameTypesFor.m', 'loadWalkSequence.m', ...
+            'writeYuv420.m', 'setupProject.m', 'checkProjectCode.m'};
         for k = 1:numel(required)
             testCase.verifyTrue(isfile(fullfile(root, 'src', required{k})), ...
                 sprintf('Missing src/%s', required{k}));

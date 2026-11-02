@@ -41,6 +41,37 @@ methods (Test)
         testCase.verifyEqual(S.mbGrid.count, 99);
     end
 
+    function frameSixteenIsTheIFrame(testCase)
+        S = loadWalkSequence(testCase.VideoPath, 16:20);
+        testCase.verifyEqual(S.frameTypes, {'I', 'P', 'P', 'P', 'P'});
+        testCase.verifyEqual(S.iFrame, 16);
+    end
+
+    function pFramesAreSeventeenToTwenty(testCase)
+        S = loadWalkSequence(testCase.VideoPath, 16:20);
+        testCase.verifyEqual(S.pFrames, 17:20);
+    end
+
+    function referenceIndexPointsAtTheIFrame(testCase)
+        S = loadWalkSequence(testCase.VideoPath, 16:20);
+        testCase.verifyEqual(S.referenceIndex, 1);
+        testCase.verifyEqual(S.frameNumbers(S.referenceIndex), S.iFrame(1));
+    end
+
+    function typesFollowClipNumberingNotSliceOrder(testCase)
+        S = loadWalkSequence(testCase.VideoPath, 18:24);
+        testCase.verifyEqual(S.frameTypes, ...
+            {'P', 'P', 'P', 'P', 'I', 'P', 'P'});
+        testCase.verifyEqual(S.iFrame, 22);
+        testCase.verifyEqual(S.pFrames, [18 19 20 21 23 24]);
+        testCase.verifyEqual(S.referenceIndex, 5);
+    end
+
+    function rejectsRangeWithoutIFrame(testCase)
+        testCase.verifyError(@() loadWalkSequence(testCase.VideoPath, 17:20), ...
+            'loadWalkSequence:noIFrame');
+    end
+
     function lumaIsInVideoRange(testCase)
         S = loadWalkSequence(testCase.VideoPath, 16:20);
         testCase.verifyGreaterThanOrEqual(min(S.Y, [], 'all'), 16);
@@ -48,9 +79,9 @@ methods (Test)
     end
 
     function lumaIsNotTheRedChannel(testCase)
-        S = loadWalkSequence(testCase.VideoPath, 17:17);
-        red = double(S.rgb(:, :, 1, 1));
-        testCase.verifyNotEqual(S.Y(:, :, 1), red, ...
+        S = loadWalkSequence(testCase.VideoPath, 16:17);
+        red = double(S.rgb(:, :, 1, 2));
+        testCase.verifyNotEqual(S.Y(:, :, 2), red, ...
             'Luma should come from rgb2ycbcr, not the red channel.');
     end
 

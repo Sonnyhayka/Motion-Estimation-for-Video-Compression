@@ -9,22 +9,27 @@ reconstruction.
 ```matlab
 cd('path/to/Motion-Estimation-for-Video-Compression')
 step02_setup          % set up folders, load frames 16 to 20, write previews
+step03_extractFrames  % type the frames I/P and write a 4:2:0 .yuv artifact
 ```
 
-`step02_setup` bootstraps its own path, so it works from the project root or
-via `run(...)` from anywhere.
+`step02_setup` and `step03_extractFrames` bootstrap their own path, so they
+work from the project root or via `run(...)` from anywhere.
 
 ## Layout
 
 ```
 data/walk_qcif.avi     source clip (176x144 QCIF, 37 frames, 30 fps, RGB24)
 src/hw3Params.m        spec constants from the HW3 PDF, single source of truth
+src/frameTypesFor.m    I/P typing from clip numbering and the GOP anchor
 src/setupProject.m     path and results folders, idempotent
 src/loadWalkSequence.m reads frames 16 to 20, splits luma and 4:2:0 chroma
+src/writeYuv420.m      writes the frames as planar 8-bit 4:2:0 (.yuv)
 src/checkProjectCode.m Code Analyzer over src, tests and the root scripts
 step02_setup.m         step 2 demo: load, report, export preview images
+step03_extractFrames.m step 3 demo: type frames, write the 4:2:0 .yuv file
 tests/                 unit tests, run with runtests('tests')
 results/frames/        generated preview PNGs
+results/yuv/           generated 4:2:0 bitstream, ignored by git
 results/figures/       reserved for motion vector and residual plots
 ```
 
@@ -51,12 +56,37 @@ long ago, so this project uses `VideoReader`.
 **Macroblocks.** 16x16, so the QCIF frame holds `11 x 9 = 99` macroblocks
 (144/16 = 9 rows, 176/16 = 11 columns). Derived at load time, not hardcoded.
 
+**Frame types.** Frame 16 is the I frame; 17 to 20 are P frames, all predicted
+from frame 16.
+
+| Clip frame | Type | Reference |
+|---|---|---|
+| 16 | I | none |
+| 17 | P | 16 |
+| 18 | P | 16 |
+| 19 | P | 16 |
+| 20 | P | 16 |
+
+Typing comes from clip numbering, not from position in the loaded slice:
+an I frame is any frame where `mod(frame - 16, 6) == 0`, so the next I frame
+is 22. `hw3Params` exposes `frameTypes`, `iFrame`, `pFrames` and `gopAnchor`,
+and `loadWalkSequence` carries them on `S` with `referenceIndex` pointing at
+the I frame. Loading a range that contains no I frame is an error rather than
+a silent misprediction.
+
+**4:2:0 bitstream.** `writeYuv420` writes planar 8-bit I420, one frame after
+another: `Y` (144x176 = 25344 B), then `Cb` (72x88 = 6336 B), then `Cr`
+(72x88 = 6336 B). That is 38016 B per frame and 190080 B for the five frames
+of this assignment.
+
 ## Status
 
 - [x] **02** Project folder and `walk_qcif` loaded. No `.yuv` conversion was
       needed because the supplied `.avi` is already valid.
-- [ ] 03 Exhaustive search (SAD), motion vectors, residual frames, reconstruction
-- [ ] 04 Report: results, `quiver` plots, computational load analysis
+- [x] **03** Frames 16 to 20 extracted at 176x144 in 4:2:0, typed as I then
+      four P frames, with the planar `.yuv` written to `results/yuv/`.
+- [ ] 04 Exhaustive search (SAD), motion vectors, residual frames, reconstruction
+- [ ] 05 Report: results, `quiver` plots, computational load analysis
 
 ## Spec, as fixed by `CompE 565_HW3.pdf`
 
