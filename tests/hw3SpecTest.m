@@ -42,6 +42,22 @@ methods (Test)
         testCase.verifyEqual(p.frameNumbers(p.iFrameIndex), 16);
     end
 
+    function gopAnchorIsTheIFrame(testCase)
+        p = hw3Params();
+        testCase.verifyEqual(p.gopAnchor, 16);
+    end
+
+    function frameSixteenIsTheOnlyIFrame(testCase)
+        p = hw3Params();
+        testCase.verifyEqual(p.frameTypes, {'I', 'P', 'P', 'P', 'P'});
+        testCase.verifyEqual(p.iFrame, 16);
+    end
+
+    function pFramesAreSeventeenToTwenty(testCase)
+        p = hw3Params();
+        testCase.verifyEqual(p.pFrames, 17:20);
+    end
+
     function sadCostIs511Adds(testCase)
         p = hw3Params();
         testCase.verifyEqual(p.addsPerCandidate, 2 * p.mbSize ^ 2 - 1);

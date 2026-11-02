@@ -10,5 +10,7 @@ codegen/
 # Generated output: keep the folder, ignore the products
 results/frames/*
 results/figures/*
+results/yuv/*
 !results/frames/.gitkeep
 !results/figures/.gitkeep
+!results/yuv/.gitkeep

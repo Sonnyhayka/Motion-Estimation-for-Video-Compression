@@ -10,13 +10,14 @@ dataDir = fullfile(projectRoot, 'data');
 resultsDir = fullfile(projectRoot, 'results');
 frameDir = fullfile(resultsDir, 'frames');
 figureDir = fullfile(resultsDir, 'figures');
+yuvDir = fullfile(resultsDir, 'yuv');
 
 pathCells = strsplit(path, pathsep);
 if ~any(strcmpi(pathCells, srcDir))
     addpath(srcDir);
 end
 
-folders = {dataDir, resultsDir, frameDir, figureDir};
+folders = {dataDir, resultsDir, frameDir, figureDir, yuvDir};
 for k = 1:numel(folders)
     if ~isfolder(folders{k})
         mkdir(folders{k});
