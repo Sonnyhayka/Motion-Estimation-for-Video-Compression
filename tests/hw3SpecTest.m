@@ -1,5 +1,10 @@
 classdef hw3SpecTest < matlab.unittest.TestCase
-%HW3SPECTEST Check hw3Params against the numbers stated in CompE 565_HW3.pdf.
+methods (TestClassSetup)
+    function addSourceToPath(~)
+        here = fileparts(mfilename('fullpath'));
+        addpath(fullfile(fileparts(here), 'src'));
+    end
+end
 
 methods (Test)
     function macroblockIs16x16(testCase)
@@ -32,8 +37,6 @@ methods (Test)
 
     function structureIsIpppppWithGop6(testCase)
         p = hw3Params();
-        % The PDF declares GOP size 6 but only supplies frames 16 to 20, so
-        % the clip covers one I frame plus four P frames rather than six.
         testCase.verifyEqual(p.gopSize, 6);
         testCase.verifyEqual(numel(p.frameNumbers), 5);
         testCase.verifyEqual(p.frameNumbers(p.iFrameIndex), 16);

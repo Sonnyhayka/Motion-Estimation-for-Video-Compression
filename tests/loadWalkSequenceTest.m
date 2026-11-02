@@ -1,6 +1,4 @@
 classdef loadWalkSequenceTest < matlab.unittest.TestCase
-%LOADWALKSEQUENCETEST Verify frame extraction, colour split, and error paths.
-
 properties
     ProjectRoot
     VideoPath

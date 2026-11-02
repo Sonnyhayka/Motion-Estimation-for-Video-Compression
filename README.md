@@ -21,7 +21,9 @@ data/walk_qcif.avi     source clip (176x144 QCIF, 37 frames, 30 fps, RGB24)
 src/hw3Params.m        spec constants from the HW3 PDF, single source of truth
 src/setupProject.m     path and results folders, idempotent
 src/loadWalkSequence.m reads frames 16 to 20, splits luma and 4:2:0 chroma
+src/checkProjectCode.m Code Analyzer over src, tests and the root scripts
 step02_setup.m         step 2 demo: load, report, export preview images
+tests/                 unit tests, run with runtests('tests')
 results/frames/        generated preview PNGs
 results/figures/       reserved for motion vector and residual plots
 ```

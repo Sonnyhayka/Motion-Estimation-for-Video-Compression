@@ -1,14 +1,4 @@
 function projectRoot = setupProject(options)
-%SETUPPROJECT Add src to the path and create the results folders.
-%
-% setupProject() prepares the environment for the HW3 scripts.
-% projectRoot = setupProject() also returns the project root folder.
-% setupProject('Verbose', false) suppresses the status printout.
-%
-% Safe to call repeatedly.
-%
-% See also loadWalkSequence, step02_setup.
-
 arguments
     options.Verbose (1, 1) logical = true
 end

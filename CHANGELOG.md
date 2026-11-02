@@ -23,10 +23,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   and report every finding in one pass.
 - Added a unit test suite covering the spec constants, frame extraction,
   chroma subsampling, and every error path.
+- Added a check that `walk_qcif.avi` is present and non-empty, so a checkout
+  missing the clip fails with a clear message instead of a downstream error.
 
 ### Changed
 
 - Luma is now taken from `rgb2ycbcr` rather than the red channel that the
   supplementary help document used, so motion estimation runs on real luma.
-- The `walk_qcif` clip now lives in `data/` alongside the code that reads it.
+- The `walk_qcif` clip now lives in `data/` alongside the code that reads it,
+  and the loader also accepts the clip at the project root, so older checkouts
+  keep working.
 - Replaced `aviread`, which no longer exists in MATLAB, with `VideoReader`.
+- The `step02_setup` report now derives the search window, macroblock size, and
+  SAD cost from `hw3Params` instead of hardcoding them, so the printed spec can
+  no longer contradict the constants used by the search.
+- Tests now add `src` to the path themselves, so `runtests('tests')` works from
+  a fresh session without any manual setup.
+- Code Analyzer failures in tests now list every offending file and line in a
+  single message, making lint regressions quicker to locate.

@@ -1,10 +1,14 @@
 classdef projectLayoutTest < matlab.unittest.TestCase
-%PROJECTLAYOUTTEST Verify the repository is wired for reproducible runs.
+methods (TestClassSetup)
+    function addSourceToPath(~)
+        here = fileparts(mfilename('fullpath'));
+        addpath(fullfile(fileparts(here), 'src'));
+    end
+end
 
 methods (Test)
     function setupProjectIsRepeatable(testCase)
         root = fileparts(fileparts(mfilename('fullpath')));
-        addpath(fullfile(root, 'src'));
         first = setupProject('Verbose', false);
         second = setupProject('Verbose', false);
         testCase.verifyEqual(first, second);
@@ -12,16 +16,11 @@ methods (Test)
     end
 
     function codeAnalyzerIsClean(testCase)
-        root = fileparts(fileparts(mfilename('fullpath')));
-        addpath(fullfile(root, 'src'));
         findings = checkProjectCode('Verbose', false);
-        if ~isempty(findings)
-            for k = 1:numel(findings)
-                testCase.diagnostic = sprintf('%s:%d %s', ...
-                    findings(k).file, findings(k).line, findings(k).message);
-            end
-        end
-        testCase.verifyEmpty(findings, 'Code Analyzer reported findings.');
+        details = arrayfun(@(f) sprintf('%s:%d %s', f.file, f.line, f.message), ...
+            findings, 'UniformOutput', false);
+        testCase.verifyEmpty(findings, ...
+            ['Code Analyzer reported findings:' newline strjoin(details, newline)]);
     end
 
     function sourceFilesArePresent(testCase)

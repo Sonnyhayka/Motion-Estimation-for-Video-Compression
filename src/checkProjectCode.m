@@ -1,12 +1,4 @@
 function findings = checkProjectCode(options)
-%CHECKPROJECTCODE Run the MATLAB Code Analyzer over the project.
-%
-% findings = checkProjectCode() reports every Code Analyzer finding.
-% checkProjectCode('ExitOnFailure', true) raises an error when any exist,
-% which is what the CI workflow uses to fail the job.
-%
-% See also checkcode, setupProject.
-
 arguments
     options.ExitOnFailure (1, 1) logical = false
     options.Verbose (1, 1) logical = true

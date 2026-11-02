@@ -1,25 +1,7 @@
 function S = loadWalkSequence(videoPath, frameIndices)
-%LOADWALKSEQUENCE Read walk_qcif and extract the frames used in HW3.
-%
-% S = loadWalkSequence() extracts frames 16 to 20 of data/walk_qcif.avi.
-% S = loadWalkSequence(VIDEOPATH, FRAMEINDICES) extracts a custom subset.
-%
-% Returns a struct with fields:
-% frameNumbers source frame indices, default [16 17 18 19 20]
-% frameCount number of frames returned
-% rgb HxWx3xN uint8 colour frames
-% Y HxWxN double luma
-% Y8 HxWxN uint8 luma
-% Cb420, Cr420 H/2xW/2xN double 4:2:0 chroma
-% mbGrid rows, cols, count for 16x16 macroblocks
-% videoInfo source file metadata
-%
-% See also setupProject.
-
-% Defaults
 if nargin < 1 || isempty(videoPath)
     here = fileparts(mfilename('fullpath'));
-    videoPath = fullfile(here, '..', 'data', 'walk_qcif.avi');
+    videoPath = resolveVideoPath(fileparts(here));
 end
 if nargin < 2 || isempty(frameIndices)
     p = hw3Params();
@@ -28,7 +10,6 @@ end
 
 frameIndices = frameIndices(:).';
 
-% Argument checks
 if ~isnumeric(frameIndices) || isempty(frameIndices) || ...
         any(~isfinite(frameIndices)) || any(frameIndices < 1) || ...
         any(frameIndices ~= fix(frameIndices))
@@ -45,7 +26,6 @@ if ~isfile(videoPath)
         videoPath);
 end
 
-% Read frames sequentially up to the last requested index
 reader = VideoReader(videoPath);
 width = reader.Width;
 height = reader.Height;
@@ -74,7 +54,6 @@ if ~isempty(missing)
         mat2str(frameIndices(missing)), totalFrames);
 end
 
-% QCIF geometry check
 if height ~= 144 || width ~= 176
     error('loadWalkSequence:badGeometry', ...
         'Expected a 176x144 QCIF frame, got %dx%d.', width, height);
@@ -86,7 +65,6 @@ if ndims(frames{1}) ~= 3 || size(frames{1}, 3) ~= 3
         mat2str(size(frames{1})));
 end
 
-% Split into luma and 4:2:0 chroma
 rgb = zeros(height, width, 3, nWant, 'uint8');
 Y = zeros(height, width, nWant);
 Cb420 = zeros(height / 2, width / 2, nWant);
@@ -103,7 +81,6 @@ end
 
 Y8 = uint8(round(Y));
 
-% 16x16 macroblock grid
 p = hw3Params();
 mbSize = p.mbSize;
 mbRows = floor(height / mbSize);
@@ -114,8 +91,6 @@ mbGrid = struct( ...
     'cols', mbCols, ...
     'count', mbRows * mbCols);
 
-% Metadata. NumFrames is not populated for every container, so fall back to
-% the number of frames actually read.
 reportedFrames = reader.NumFrames;
 if ~isscalar(reportedFrames) || ~isfinite(reportedFrames) || reportedFrames < totalFrames
     reportedFrames = totalFrames;
@@ -144,17 +119,29 @@ S = struct( ...
 end
 
 function out = subsample420(plane)
-% Mean of each 2x2 block, giving the 4:2:0 chroma resolution.
 plane = double(plane);
 out = 0.25 * ( plane(1:2:end, 1:2:end) + plane(1:2:end, 2:2:end) ...
              + plane(2:2:end, 1:2:end) + plane(2:2:end, 2:2:end) );
 end
 
 function p = whichPath(videoPath)
-% Absolute path when possible, otherwise the input unchanged.
 try
     p = char(java.io.File(videoPath).getCanonicalPath());
 catch
     p = videoPath;
+end
+end
+
+function videoPath = resolveVideoPath(root)
+candidates = { ...
+    fullfile(root, 'data', 'walk_qcif.avi'), ...
+    fullfile(root, 'walk_qcif.avi')};
+
+videoPath = candidates{1};
+for k = 1:numel(candidates)
+    if isfile(candidates{k})
+        videoPath = candidates{k};
+        return
+    end
 end
 end

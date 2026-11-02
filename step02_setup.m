@@ -1,16 +1,6 @@
-%STEP02_SETUP Load walk_qcif frames 16 to 20 and write preview images.
-%
-% Setup step for HW3. Confirms the project layout, reads the five frames,
-% splits them into luma and 4:2:0 chroma, and exports previews.
-%
-% Outputs: results/frames/f16_Y.png .. f20_Y.png plus RGB previews.
-%
-% See also setupProject, loadWalkSequence.
-
 clearvars -except projectRoot
 clc
 
-% Locate the project root from this file, then hand off to setupProject
 scriptDir = fileparts(mfilename('fullpath'));
 if isempty(scriptDir)
     scriptDir = pwd;
@@ -49,8 +39,8 @@ fprintf('\nSpec from CompE 565_HW3.pdf\n');
 fprintf('[spec] window      %dx%d centered, so w = %g\n', ...
     p.searchWindow, p.searchWindow, p.searchRadius);
 fprintf('[spec] candidates  (2w+1)^2 = %d per macroblock\n', p.candidates);
-fprintf('[spec] cost        225 x %d = %d adds per macroblock\n', ...
-    p.addsPerCandidate, p.candidates * p.addsPerCandidate);
+fprintf('[spec] cost        %d x %d = %d adds per macroblock\n', ...
+    p.candidates, p.addsPerCandidate, p.candidates * p.addsPerCandidate);
 fprintf('[spec] structure   I%s, GOP %d\n', ...
     repmat('P', 1, p.gopSize - 1), p.gopSize);
 fprintf('[spec] reference   all P frames predicted from the I frame (frame %d)\n', ...
@@ -80,10 +70,10 @@ fprintf('\n[ok] written     results/frames/f%02d_Y.png to f%02d_Y.png plus RGB\n
     S.frameNumbers(1), S.frameNumbers(end));
 fprintf('[ok] loaded      %d frames in %.3f s\n', S.frameCount, elapsed);
 
-fprintf('\nNext: exhaustive search over a 30x30 window with 16x16 macroblocks.\n\n');
+fprintf('\nNext: exhaustive search over a %dx%d window with %dx%d macroblocks.\n\n', ...
+    p.searchWindow, p.searchWindow, p.mbSize, p.mbSize);
 
 function p = relativePath(absPath, root)
-% Path relative to the project root when it lives inside it.
 p = absPath;
 prefix = [root filesep];
 if strncmpi(absPath, prefix, numel(prefix))
