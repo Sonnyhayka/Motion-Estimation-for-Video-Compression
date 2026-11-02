@@ -13,6 +13,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added `extractMacroblock` to pull one macroblock out of the target frame by
+  1-based grid row and column, returning the block and its top-left pixel
+  `origin`. It rejects planes that are not a whole number of blocks, so a
+  4:2:0 chroma plane needs `mbSize = 8` instead of silently losing its right
+  and bottom edges, and it converts integer-class indices to `double` so
+  `int8` input cannot saturate into an empty block.
 - Added `frameTypesFor` to type frames as I or P from clip numbering and the
   GOP anchor, so frame 16 is the I frame and a later GOP boundary at frame 22
   is found without hardcoding the loaded range.

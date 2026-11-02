@@ -24,6 +24,7 @@ src/frameTypesFor.m    I/P typing from clip numbering and the GOP anchor
 src/setupProject.m     path and results folders, idempotent
 src/loadWalkSequence.m reads frames 16 to 20, splits luma and 4:2:0 chroma
 src/writeYuv420.m      writes the frames as planar 8-bit 4:2:0 (.yuv)
+src/extractMacroblock.m pulls one macroblock out of a plane (16x16 luma, 8x8 chroma)
 src/checkProjectCode.m Code Analyzer over src, tests and the root scripts
 step02_setup.m         step 2 demo: load, report, export preview images
 step03_extractFrames.m step 3 demo: type frames, write the 4:2:0 .yuv file
@@ -55,6 +56,14 @@ long ago, so this project uses `VideoReader`.
 
 **Macroblocks.** 16x16, so the QCIF frame holds `11 x 9 = 99` macroblocks
 (144/16 = 9 rows, 176/16 = 11 columns). Derived at load time, not hardcoded.
+
+`extractMacroblock(plane, row, col)` takes 1-based macroblock grid indices, row
+first, and returns the block plus `origin = [row col]` of its top-left pixel.
+Mind the order against the PDF's `d = (dx, dy)`: `dx` is the column offset and
+`dy` the row offset. The plane must be a whole number of blocks. A 4:2:0 chroma
+plane (72x88) is half size, so pass `mbSize = 8` and it lands on the same 9x11
+grid as luma; the default 16 is rejected rather than silently dropping the
+right and bottom edges.
 
 **Frame types.** Frame 16 is the I frame; 17 to 20 are P frames, all predicted
 from frame 16.
