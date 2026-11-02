@@ -1,2 +1,14 @@
 opencode.json
 .env
+
+# MATLAB scratch
+*.asv
+*.m~
+slprj/
+codegen/
+
+# Generated output: keep the folder, ignore the products
+results/frames/*
+results/figures/*
+!results/frames/.gitkeep
+!results/figures/.gitkeep

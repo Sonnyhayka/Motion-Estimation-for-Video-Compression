@@ -1,0 +1,93 @@
+%STEP02_SETUP Load walk_qcif frames 16 to 20 and write preview images.
+%
+% Setup step for HW3. Confirms the project layout, reads the five frames,
+% splits them into luma and 4:2:0 chroma, and exports previews.
+%
+% Outputs: results/frames/f16_Y.png .. f20_Y.png plus RGB previews.
+%
+% See also setupProject, loadWalkSequence.
+
+clearvars -except projectRoot
+clc
+
+% Locate the project root from this file, then hand off to setupProject
+scriptDir = fileparts(mfilename('fullpath'));
+if isempty(scriptDir)
+    scriptDir = pwd;
+end
+projectRoot = scriptDir;
+addpath(fullfile(projectRoot, 'src'));
+
+projectRoot = setupProject();
+videoPath = fullfile(projectRoot, 'data', 'walk_qcif.avi');
+
+tic;
+p = hw3Params();
+S = loadWalkSequence(videoPath, p.frameNumbers);
+elapsed = toc;
+
+info = S.videoInfo;
+
+fprintf('\nSource\n');
+fprintf('[ok] source      %s\n', relativePath(info.path, projectRoot));
+fprintf('                %d frames, %g fps, %.2f s, %dx%d, %s (bpp %d)\n', ...
+    info.numFrames, info.frameRate, info.duration, ...
+    info.width, info.height, info.videoFormat, info.bitsPerPixel);
+
+fprintf('\nExtracted frames\n');
+fprintf('[ok] extracted   frames %s, %d frames, %dx%d each\n', ...
+    mat2str(S.frameNumbers), S.frameCount, info.height, info.width);
+fprintf('[ok] luma        Y  : %dx%d double, range %g to %g\n', ...
+    size(S.Y, 1), size(S.Y, 2), min(S.Y, [], 'all'), max(S.Y, [], 'all'));
+fprintf('[ok] chroma      Cb : %dx%d   Cr : %dx%d  (%s)\n', ...
+    size(S.Cb420, 1), size(S.Cb420, 2), ...
+    size(S.Cr420, 1), size(S.Cr420, 2), p.chromaFormat);
+fprintf('[ok] mb grid     %d cols x %d rows = %d macroblocks per frame (%dx%d)\n', ...
+    S.mbGrid.cols, S.mbGrid.rows, S.mbGrid.count, p.mbSize, p.mbSize);
+
+fprintf('\nSpec from CompE 565_HW3.pdf\n');
+fprintf('[spec] window      %dx%d centered, so w = %g\n', ...
+    p.searchWindow, p.searchWindow, p.searchRadius);
+fprintf('[spec] candidates  (2w+1)^2 = %d per macroblock\n', p.candidates);
+fprintf('[spec] cost        225 x %d = %d adds per macroblock\n', ...
+    p.addsPerCandidate, p.candidates * p.addsPerCandidate);
+fprintf('[spec] structure   I%s, GOP %d\n', ...
+    repmat('P', 1, p.gopSize - 1), p.gopSize);
+fprintf('[spec] reference   all P frames predicted from the I frame (frame %d)\n', ...
+    p.frameNumbers(p.iFrameIndex));
+
+fprintf('\nPer frame luma\n');
+fprintf(' frame   mean    std     min   max\n');
+for j = 1:S.frameCount
+    y = S.Y(:, :, j);
+    fprintf(' %5d  %6.2f  %6.2f  %5.0f %5.0f\n', ...
+        S.frameNumbers(j), mean(y, 'all'), std(y, 0, 'all'), ...
+        min(y, [], 'all'), max(y, [], 'all'));
+end
+
+frameDir = fullfile(projectRoot, 'results', 'frames');
+if ~isfolder(frameDir)
+    mkdir(frameDir);
+end
+
+for j = 1:S.frameCount
+    n = S.frameNumbers(j);
+    imwrite(S.Y8(:, :, j), fullfile(frameDir, sprintf('f%02d_Y.png', n)));
+    imwrite(S.rgb(:, :, :, j), fullfile(frameDir, sprintf('f%02d_RGB.png', n)));
+end
+
+fprintf('\n[ok] written     results/frames/f%02d_Y.png to f%02d_Y.png plus RGB\n', ...
+    S.frameNumbers(1), S.frameNumbers(end));
+fprintf('[ok] loaded      %d frames in %.3f s\n', S.frameCount, elapsed);
+
+fprintf('\nNext: exhaustive search over a 30x30 window with 16x16 macroblocks.\n\n');
+
+function p = relativePath(absPath, root)
+% Path relative to the project root when it lives inside it.
+p = absPath;
+prefix = [root filesep];
+if strncmpi(absPath, prefix, numel(prefix))
+    p = absPath(numel(prefix) + 1:end);
+end
+p = strrep(p, filesep, '/');
+end
