@@ -4,17 +4,30 @@ function tests = testProjectFiles
 tests = functiontests(localfunctions);
 end
 
-function testInputVideoExists(testCase)
+function videoFile = locateVideo()
 projectRoot = fileparts(fileparts(mfilename('fullpath')));
-videoFile = fullfile(projectRoot, 'walk_qcif.avi');
+candidates = { ...
+    fullfile(projectRoot, 'data', 'walk_qcif.avi'), ...
+    fullfile(projectRoot, 'walk_qcif.avi')};
+
+videoFile = candidates{1};
+for k = 1:numel(candidates)
+    if isfile(candidates{k})
+        videoFile = candidates{k};
+        break
+    end
+end
+end
+
+function testInputVideoExists(testCase)
+videoFile = locateVideo();
 testCase.verifyTrue(isfile(videoFile), ...
-    'Required input video walk_qcif.avi is missing.');
+    sprintf('Required input video walk_qcif.avi is missing. Looked for %s.', ...
+    videoFile));
 end
 
 function testInputVideoNotEmpty(testCase)
-projectRoot = fileparts(fileparts(mfilename('fullpath')));
-videoFile = fullfile(projectRoot, 'walk_qcif.avi');
-fileInfo = dir(videoFile);
+fileInfo = dir(locateVideo());
 testCase.verifyNotEmpty(fileInfo);
 if ~isempty(fileInfo)
     testCase.verifyGreaterThan(fileInfo.bytes, 0);

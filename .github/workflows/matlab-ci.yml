@@ -13,7 +13,7 @@ permissions:
 jobs:
   test:
     name: Run MATLAB unit tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Check out repository
@@ -23,6 +23,7 @@ jobs:
         uses: matlab-actions/setup-matlab@v3
         with:
           release: latest
+          products: Image_Processing_Toolbox
 
       - name: Run tests and generate JUnit report
         uses: matlab-actions/run-tests@v3
