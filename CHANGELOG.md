@@ -13,6 +13,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added `extractSearchWindow` to pull the search window for a macroblock out of
+  the I frame using the same grid row and column as `extractMacroblock`,
+  returning both the window and the top-left pixel `origin` that locates it.
+  Knowing the origin lets the search turn any candidate position into a motion
+  vector, and the window is clipped at the frame border instead of padded, so
+  every candidate that stays inside the frame is still available. Interior
+  blocks get the full 30x30 window while corners get 23x23 and edge blocks get
+  23x30 or 30x23. These dimensions follow the HW3 PDF's centered window rather
+  than the 22 pixel borders in `HW_3_SampleOutput.pdf`, which are inconsistent
+  with a centered 30x30 window.
 - Added `extractMacroblock` to pull one macroblock out of the target frame by
   1-based grid row and column, returning the block and its top-left pixel
   `origin`. It rejects planes that are not a whole number of blocks, so a
