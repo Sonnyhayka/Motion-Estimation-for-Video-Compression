@@ -25,6 +25,7 @@ src/setupProject.m     path and results folders, idempotent
 src/loadWalkSequence.m reads frames 16 to 20, splits luma and 4:2:0 chroma
 src/writeYuv420.m      writes the frames as planar 8-bit 4:2:0 (.yuv)
 src/extractMacroblock.m pulls one macroblock out of a plane (16x16 luma, 8x8 chroma)
+src/extractSearchWindow.m pulls the search window around a macroblock out of the I frame
 src/checkProjectCode.m Code Analyzer over src, tests and the root scripts
 step02_setup.m         step 2 demo: load, report, export preview images
 step03_extractFrames.m step 3 demo: type frames, write the 4:2:0 .yuv file
@@ -64,6 +65,19 @@ Mind the order against the PDF's `d = (dx, dy)`: `dx` is the column offset and
 plane (72x88) is half size, so pass `mbSize = 8` and it lands on the same 9x11
 grid as luma; the default 16 is rejected rather than silently dropping the
 right and bottom edges.
+
+**Search window.** `extractSearchWindow(plane, row, col)` takes the same grid
+indices, so pass it the I frame plane and the macroblock position from the
+target frame. It returns the window plus `origin = [row col]` of the window's
+top left pixel, which together with the block's own origin gives the
+displacement of any candidate. The window is the macroblock plus `w = 7` pixels
+on every side, so 30x30 in the interior. At the frame edge it is clipped, not
+padded, so it keeps every candidate that lies fully inside the frame: 23x23 at
+the four corners, 23x30 on the top and bottom rows, and 30x23 on the left and
+right columns. `HW_3_SampleOutput.pdf` lists 22 pixel borders (22x22, 30x22,
+22x30), which does not follow from the HW3 PDF's centered 30x30 window, so the
+code follows the HW3 PDF. For chroma pass `mbSize = 8` and a radius to match,
+for example `extractSearchWindow(plane, row, col, 8, 3)`.
 
 **Frame types.** Frame 16 is the I frame; 17 to 20 are P frames, all predicted
 from frame 16.
