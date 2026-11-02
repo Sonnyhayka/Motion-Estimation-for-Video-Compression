@@ -13,6 +13,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added `fullSearchMacroblock` to run full search block matching for one
+  macroblock, scoring every candidate in the search window with minimum SAD and
+  returning the motion vector `mv = [dx dy]`, the minimum SAD, and the full SAD
+  map. SAD is the sum of absolute differences from the HW3 PDF, not the
+  `abs(sum(...))` shown in `MATLAB Help_Project 3.pdf`, which lets positive and
+  negative errors cancel. Pixels are converted to `double` so `uint8` frames
+  cannot saturate, and ties go to the displacement nearest zero so flat areas
+  give the zero vector instead of the first candidate in scan order.
 - Added `extractSearchWindow` to pull the search window for a macroblock out of
   the I frame using the same grid row and column as `extractMacroblock`,
   returning both the window and the top-left pixel `origin` that locates it.
