@@ -26,6 +26,7 @@ src/loadWalkSequence.m reads frames 16 to 20, splits luma and 4:2:0 chroma
 src/writeYuv420.m      writes the frames as planar 8-bit 4:2:0 (.yuv)
 src/extractMacroblock.m pulls one macroblock out of a plane (16x16 luma, 8x8 chroma)
 src/extractSearchWindow.m pulls the search window around a macroblock out of the I frame
+src/fullSearchMacroblock.m full search block matching with minimum SAD for one macroblock
 src/checkProjectCode.m Code Analyzer over src, tests and the root scripts
 step02_setup.m         step 2 demo: load, report, export preview images
 step03_extractFrames.m step 3 demo: type frames, write the 4:2:0 .yuv file
@@ -78,6 +79,26 @@ right columns. `HW_3_SampleOutput.pdf` lists 22 pixel borders (22x22, 30x22,
 22x30), which does not follow from the HW3 PDF's centered 30x30 window, so the
 code follows the HW3 PDF. For chroma pass `mbSize = 8` and a radius to match,
 for example `extractSearchWindow(plane, row, col, 8, 3)`.
+
+**Full search.** `[mv, minSad, sadMap] = fullSearchMacroblock(target, reference,
+row, col)` takes the macroblock at grid position `(row, col)` of the target
+frame, scores every position of that block inside the matching search window of
+the reference (the I frame), and returns the best displacement. Candidates are
+scored with SAD as the HW3 PDF defines it, the sum of the absolute pixel
+differences. `MATLAB Help_Project 3.pdf` shows `abs(sum(...))`, which lets
+positive and negative errors cancel, so it is not used. Pixels are converted to
+`double` first so `uint8` frames cannot saturate.
+
+`mv = [dx dy]` follows the PDF's `d = (dx, dy)`: `dx` is the column offset and
+`dy` the row offset, and the best matching block in the reference starts at
+`origin + [dy dx]`, where `origin` is the target block's top left pixel from
+`extractMacroblock`. `sadMap` holds every SAD, with row `r` and column `c`
+standing for `dy = r - 8` and `dx = c - 8` in the interior, so its size is the
+candidate count: 15x15 = 225 in the interior and fewer at the frame edge, for
+example 8x8 = 64 in a corner. Ties go to the displacement nearest zero, then to
+the smaller `dx`, then to the smaller `dy`, so a flat area gives the zero vector
+instead of the first candidate in scan order. For chroma pass `mbSize = 8` and a
+radius to match.
 
 **Frame types.** Frame 16 is the I frame; 17 to 20 are P frames, all predicted
 from frame 16.
