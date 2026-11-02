@@ -1,0 +1,39 @@
+name: MATLAB CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Run MATLAB unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v3
+        with:
+          release: latest
+
+      - name: Run tests and generate JUnit report
+        uses: matlab-actions/run-tests@v3
+        with:
+          select-by-folder: tests
+          test-results-junit: test-results/results.xml
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matlab-test-results
+          path: test-results/
+          if-no-files-found: ignore

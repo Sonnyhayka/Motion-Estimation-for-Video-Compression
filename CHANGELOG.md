@@ -25,6 +25,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   chroma subsampling, and every error path.
 - Added a check that `walk_qcif.avi` is present and non-empty, so a checkout
   missing the clip fails with a clear message instead of a downstream error.
+- Added a GitHub Actions workflow that runs the MATLAB test suite on every push
+  and pull request to `main`, so a regression is caught before it is merged.
 
 ### Changed
 
