@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- CI now installs Image Processing Toolbox so frame-loading tests can call
+  `rgb2ycbcr`, and uses Ubuntu 24.04 to avoid the unsupported Ubuntu 26.04 runner.
+
 ### Added
 
 - Added `hw3Params` as the single source of truth for the assignment numbers
