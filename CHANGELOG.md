@@ -13,6 +13,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added `fullSearchFrame` to search every macroblock in a plane in one call, so
+  a whole P frame can be predicted against the I frame instead of looping over
+  blocks by hand. It returns the `[dx dy]` vectors, the minimum SAD for each
+  block, and the selected reference blocks already placed at their target-grid
+  positions, so the prediction can be compared with the target or written out
+  without reassembling it.
 - Added `fullSearchMacroblock` to run full search block matching for one
   macroblock, scoring every candidate in the search window with minimum SAD and
   returning the motion vector `mv = [dx dy]`, the minimum SAD, and the full SAD

@@ -27,6 +27,7 @@ src/writeYuv420.m      writes the frames as planar 8-bit 4:2:0 (.yuv)
 src/extractMacroblock.m pulls one macroblock out of a plane (16x16 luma, 8x8 chroma)
 src/extractSearchWindow.m pulls the search window around a macroblock out of the I frame
 src/fullSearchMacroblock.m full search block matching with minimum SAD for one macroblock
+src/fullSearchFrame.m  full search across a frame, storing vectors and matched blocks
 src/checkProjectCode.m Code Analyzer over src, tests and the root scripts
 step02_setup.m         step 2 demo: load, report, export preview images
 step03_extractFrames.m step 3 demo: type frames, write the 4:2:0 .yuv file
@@ -99,6 +100,15 @@ example 8x8 = 64 in a corner. Ties go to the displacement nearest zero, then to
 the smaller `dx`, then to the smaller `dy`, so a flat area gives the zero vector
 instead of the first candidate in scan order. For chroma pass `mbSize = 8` and a
 radius to match.
+
+**Frame search.** `[vectors, matched, minSads] = fullSearchFrame(target,
+reference)` applies that search to every macroblock. `vectors` is a 9x11x2
+array for QCIF, with `vectors(row,col,1)` holding `dx` and the second plane
+holding `dy`. `matched` is a reference-class plane with each selected block
+placed at the corresponding target-grid position; `minSads` is a 9x11 array.
+The grid is derived from the plane size. Optional `mbSize` and `radius`
+arguments allow the same operation on other whole-block planes. Pass each P
+frame as `target` and the I frame as `reference`.
 
 **Frame types.** Frame 16 is the I frame; 17 to 20 are P frames, all predicted
 from frame 16.
