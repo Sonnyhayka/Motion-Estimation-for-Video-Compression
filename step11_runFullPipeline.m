@@ -95,13 +95,14 @@ if nargin < 5
 end
 fig = figure('Visible', 'off', 'Color', 'w', 'Position', [100 100 800 600]);
 cleanup = onCleanup(@() close(fig));
-ax = axes('Parent', fig, 'XColor', 'k', 'YColor', 'k');
+ax = axes('Parent', fig);
 imagesc(ax, plane, limits);
+set(ax, 'XColor', 'k', 'YColor', 'k');
 colormap(ax, gray(256));
 axis(ax, 'image');
 title(ax, caption, 'Color', 'k');
-xlabel(ax, 'Column (pixels)');
-ylabel(ax, 'Row (pixels)');
+xlabel(ax, 'Column (pixels)', 'Color', 'k');
+ylabel(ax, 'Row (pixels)', 'Color', 'k');
 if signedError
     bar = colorbar(ax);
     bar.Color = 'k';
@@ -114,16 +115,16 @@ end
 function saveMotionFigure(target, x, y, vectors, caption, outputBase)
 fig = figure('Visible', 'off', 'Color', 'w', 'Position', [100 100 800 600]);
 cleanup = onCleanup(@() close(fig));
-ax = axes('Parent', fig, 'XColor', 'k', 'YColor', 'k');
+ax = axes('Parent', fig);
 imagesc(ax, target, [0 255]);
 colormap(ax, gray(256));
 axis(ax, 'image');
-set(ax, 'YDir', 'reverse');
+set(ax, 'YDir', 'reverse', 'XColor', 'k', 'YColor', 'k');
 hold(ax, 'on');
 quiver(ax, x, y, vectors(:, :, 1), vectors(:, :, 2), 0, 'r', 'LineWidth', 1);
 title(ax, caption, 'Color', 'k');
-xlabel(ax, 'Column (pixels)');
-ylabel(ax, 'Row (pixels)');
+xlabel(ax, 'Column (pixels)', 'Color', 'k');
+ylabel(ax, 'Row (pixels)', 'Color', 'k');
 exportgraphics(fig, [outputBase '.png'], 'Resolution', 150);
 savefig(fig, [outputBase '.fig']);
 end

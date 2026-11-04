@@ -2,7 +2,8 @@
 
 Full search (exhaustive) block motion estimation on 5 frames of the `walk_qcif`
 sequence, with residual frames, motion vector plots, and motion compensated
-reconstruction.
+reconstruction on luma (Y) only. Cb/Cr are extracted and exported in 4:2:0;
+chroma motion compensation and colour reconstruction are not implemented.
 
 ## Quick start
 
@@ -64,12 +65,34 @@ runs `rgb2ycbcr` and exposes:
 | `rgb` | 144x176x3x5 `uint8` | colour previews |
 | `Y` | 144x176x5 `double` | motion estimation |
 | `Y8` | 144x176x5 `uint8` | writing images and video |
-| `Cb420`, `Cr420` | 72x88x5 `double` | 4:2:0 chroma discussion |
+| `Cb420`, `Cr420` | 72x88x5 `double` | source chroma for 4:2:0 export |
 
 The assignment's `MATLAB Help_Project 3.pdf` uses `cdata(:,:,1)`, the **red**
 channel, as luma. That is not luma, so this project uses the real `rgb2ycbcr`
 luma instead. Note also that `aviread` from that PDF was removed from MATLAB
 long ago, so this project uses `VideoReader`.
+
+**Chroma scope (luma-only choice, task 12).** This implementation deliberately
+limits motion estimation, prediction, signed residuals and P-frame decoding to
+Y. This keeps the experiment focused on the 16x16 luma block search and its
+SAD cost. Steps 04, 05, 10 and 11 pass only `S.Y` to the motion estimation and
+decoding functions. They do not scale the luma motion vectors for Cb/Cr or
+compute chroma predictions, residuals or reconstructions. Although the generic
+plane helpers accept 8x8 chroma blocks, the pipeline does not call them on chroma.
+
+`loadWalkSequence` converts RGB to YCbCr and averages each non-overlapping 2x2
+group of Cb and Cr samples to form 72x88 planes. `writeYuv420` rounds these
+source chroma values to `uint8` and writes them alongside the source Y. Thus
+`walk_f16_20_yuv420p.yuv` is an uncompressed source export, not a decoded
+motion-compensated colour sequence. The RGB PNGs are also source previews.
+
+All saved predictions, residuals and reconstructed frames, plus the SAD and
+maximum reconstruction error in `pipeline_summary.csv`, describe Y only.
+Exact reconstruction means equality to the extracted Y samples; it does not
+validate Cb/Cr or RGB reconstruction. The 4:2:0 requirement is covered by
+source extraction and export only. Full 4:2:0 motion-compensated decoding
+remains outside this implementation's scope; the report should state this
+limitation explicitly.
 
 **Macroblocks.** 16x16, so the QCIF frame holds `11 x 9 = 99` macroblocks
 (144/16 = 9 rows, 176/16 = 11 columns). Derived at load time, not hardcoded.
@@ -150,7 +173,7 @@ the I frame; image rows increase downward. `motion_vectors.mat` stores the
 `run('/path/to/project/step11_runFullPipeline.m')`. It loads frames 16 to 20,
 writes the source previews and 4:2:0 bitstream, then performs one full search
 and one decode for each P frame against the fixed I frame 16. Every decoded
-pixel must equal its target, the decoder's prediction must equal the encoder's
+Y pixel must equal its target, the decoder's prediction must equal the encoder's
 matched blocks, and the absolute residual sum must equal the total block SAD.
 
 For each frame `N` in 17 to 20, `results/figures/` contains both a PNG and an
@@ -188,7 +211,7 @@ and `loadWalkSequence` carries them on `S` with `referenceIndex` pointing at
 the I frame. Loading a range that contains no I frame is an error rather than
 a silent misprediction.
 
-**4:2:0 bitstream.** `writeYuv420` writes planar 8-bit I420, one frame after
+**4:2:0 source export.** `writeYuv420` writes planar 8-bit I420, one frame after
 another: `Y` (144x176 = 25344 B), then `Cb` (72x88 = 6336 B), then `Cr`
 (72x88 = 6336 B). That is 38016 B per frame and 190080 B for the five frames
 of this assignment.
@@ -201,6 +224,8 @@ of this assignment.
       four P frames, with the planar `.yuv` written to `results/yuv/`.
 - [x] 04 Exhaustive search (SAD), motion vectors, residual frames, reconstruction;
       `step11_runFullPipeline` exports all four P-frame results in one run.
+- [x] **12** Documented the luma-only choice: Cb/Cr are extracted and exported,
+      while motion compensation, residuals and reconstruction cover Y only.
 - [ ] 05 Report: results, `quiver` plots, computational load analysis
 
 ## Spec, as fixed by `CompE 565_HW3.pdf`
