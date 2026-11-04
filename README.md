@@ -10,6 +10,7 @@ reconstruction.
 cd('path/to/Motion-Estimation-for-Video-Compression')
 step02_setup          % set up folders, load frames 16 to 20, write previews
 step03_extractFrames  % type the frames I/P and write a 4:2:0 .yuv artifact
+step04_residualFrames % predict each P frame and save signed residuals and previews
 ```
 
 `step02_setup` and `step03_extractFrames` bootstrap their own path, so they
@@ -31,6 +32,7 @@ src/fullSearchFrame.m  full search across a frame, storing vectors and matched b
 src/checkProjectCode.m Code Analyzer over src, tests and the root scripts
 step02_setup.m         step 2 demo: load, report, export preview images
 step03_extractFrames.m step 3 demo: type frames, write the 4:2:0 .yuv file
+step04_residualFrames.m compute and save the four P-frame residuals
 tests/                 unit tests, run with runtests('tests')
 results/frames/        generated preview PNGs
 results/yuv/           generated 4:2:0 bitstream, ignored by git
@@ -109,6 +111,15 @@ placed at the corresponding target-grid position; `minSads` is a 9x11 array.
 The grid is derived from the plane size. Optional `mbSize` and `radius`
 arguments allow the same operation on other whole-block planes. Pass each P
 frame as `target` and the I frame as `reference`.
+
+**Residuals.** The fourth output of `fullSearchFrame` is the signed `double`
+array `residual = double(target) - double(matched)`, so negative differences
+are preserved even for `uint8` inputs. `step04_residualFrames` applies this to
+frames 17 to 20 using frame 16 as the reference. It saves the numeric residuals
+and their clip frame numbers in `results/frames/residual_frames.mat`, and PNG
+previews in the same folder. The previews map residuals from -255 to 255 onto
+black to white; zero appears approximately mid-gray. The MAT file retains the
+actual differences for subsequent reconstruction.
 
 **Frame types.** Frame 16 is the I frame; 17 to 20 are P frames, all predicted
 from frame 16.

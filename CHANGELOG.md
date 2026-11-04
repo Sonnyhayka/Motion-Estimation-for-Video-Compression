@@ -13,6 +13,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added a fourth `residual` output to `fullSearchFrame`, the signed
+  `double` difference between the target and its motion-compensated match, so
+  negative errors survive instead of clipping to zero on `uint8` frames and the
+  prediction can be reconstructed exactly as `matched + residual`.
+- Added `step04_residualFrames` to predict frames 17 to 20 from frame 16 and
+  save the residuals for later reconstruction, with PNG previews that place zero
+  at mid-gray and a `residual_frames.mat` holding the actual signed values.
+- Added tests covering the residual output, including the `uint8` case that
+  would otherwise lose negative differences and the sum of absolute residuals
+  matching the reported SAD.
 - Added `fullSearchFrame` to search every macroblock in a plane in one call, so
   a whole P frame can be predicted against the I frame instead of looping over
   blocks by hand. It returns the `[dx dy]` vectors, the minimum SAD for each

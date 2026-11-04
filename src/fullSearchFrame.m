@@ -1,8 +1,9 @@
-function [motionVectors, matchedFrame, minSads] = fullSearchFrame(target, reference, mbSize, radius)
+function [motionVectors, matchedFrame, minSads, residual] = fullSearchFrame(target, reference, mbSize, radius)
 %FULLSEARCHFRAME Match every target macroblock against the reference plane.
 % motionVectors(row,col,:) contains [dx dy]. matchedFrame places each
 % selected reference block at its target-grid position. minSads is indexed
-% by macroblock row and column.
+% by macroblock row and column. residual is target minus matchedFrame as
+% double, preserving negative differences even for unsigned input planes.
 p = hw3Params();
 if nargin < 3 || isempty(mbSize)
     mbSize = p.mbSize;
@@ -37,4 +38,5 @@ for row = 1:mbRows
                       left + mv(1):left + mv(1) + mbSize - 1);
     end
 end
+residual = double(target) - double(matchedFrame);
 end
