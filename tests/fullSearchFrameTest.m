@@ -40,7 +40,8 @@ methods (Test)
         stream = RandStream('mt19937ar', 'Seed', 42);
         reference = randi(stream, 256, 32, 48) - 1;
         target = randi(stream, 256, 32, 48) - 1;
-        [vectors, matched, sads] = fullSearchFrame(target, reference, 8, 3);
+        [vectors, matched, sads, residual] = fullSearchFrame(target, reference, 8, 3);
+        testCase.verifyEqual(residual, target - matched);
         testCase.verifySize(vectors, [4 6 2]);
         for row = 1:4
             for col = 1:6
@@ -53,6 +54,16 @@ methods (Test)
                 testCase.verifyEqual(sads(row, col), sum(abs(block(:) - expected(:))));
             end
         end
+    end
+
+    function residualPreservesSignedUnsignedDifferences(testCase)
+        target = uint8([0 255; 20 50]);
+        reference = uint8([255 0; 20 70]);
+        [~, matched, sads, residual] = fullSearchFrame(target, reference, 2, 0);
+        testCase.verifyClass(residual, 'double');
+        testCase.verifyEqual(residual, [-255 255; 0 -20]);
+        testCase.verifyEqual(double(matched) + residual, double(target));
+        testCase.verifyEqual(sum(abs(residual(:))), sads);
     end
 
     function rejectsInvalidInputs(testCase)
@@ -70,7 +81,9 @@ methods (Test)
         reference = S.Y(:, :, S.referenceIndex);
         for frame = 2:numel(S.frameNumbers)
             target = S.Y(:, :, frame);
-            [vectors, matched, sads] = fullSearchFrame(target, reference);
+            [vectors, matched, sads, residual] = fullSearchFrame(target, reference);
+            testCase.verifyEqual(residual, double(target) - double(matched));
+            testCase.verifyEqual(double(matched) + residual, double(target));
             testCase.verifySize(vectors, [9 11 2]);
             for row = 1:9
                 for col = 1:11
