@@ -20,6 +20,7 @@ step03_extractFrames  % type the frames I/P and write a 4:2:0 .yuv artifact
 step04_residualFrames % predict each P frame and save signed residuals and previews
 step05_reconstructFrames % decode each P frame and verify it against the target
 step10_plotMotionVectors % plot and save motion vectors for each P frame
+step13_computeLoad    % report and export full-search operations per MB and frame
 ```
 
 `step02_setup` and `step03_extractFrames` bootstrap their own path, so they
@@ -38,6 +39,7 @@ src/extractMacroblock.m pulls one macroblock out of a plane (16x16 luma, 8x8 chr
 src/extractSearchWindow.m pulls the search window around a macroblock out of the I frame
 src/fullSearchMacroblock.m full search block matching with minimum SAD for one macroblock
 src/fullSearchFrame.m  full search across a frame, storing vectors and matched blocks
+src/fullSearchLoad.m   count SAD and tie-selection operations, including clipped borders
 src/reconstructPFrame.m rebuilds a P frame from reference, motion vectors and residual
 src/checkProjectCode.m Code Analyzer over src, tests and the root scripts
 step02_setup.m         step 2 demo: load, report, export preview images
@@ -46,6 +48,8 @@ step04_residualFrames.m compute and save the four P-frame residuals
 step05_reconstructFrames.m reconstruct and verify the four P frames
 step10_plotMotionVectors.m plot the four P-frame motion vector fields
 step11_runFullPipeline.m run search and decoding once per P frame; export all figures
+step13_computeLoad.m   export computational load per macroblock and per frame
+docs/computational_load.md task 13 formulas, counts and counting conventions
 tests/                 unit tests, run with runtests('tests')
 results/frames/        generated preview PNGs
 results/yuv/           generated 4:2:0 bitstream, ignored by git
@@ -226,7 +230,9 @@ of this assignment.
       `step11_runFullPipeline` exports all four P-frame results in one run.
 - [x] **12** Documented the luma-only choice: Cb/Cr are extracted and exported,
       while motion compensation, residuals and reconstruction cover Y only.
-- [ ] 05 Report: results, `quiver` plots, computational load analysis
+- [x] **13** Computed full-search load per MB and per frame, including clipped
+      borders and tie-selection overhead; see [the analysis](docs/computational_load.md).
+- [ ] 05 Report: assemble results, `quiver` plots and computational load analysis
 
 ## Spec, as fixed by `CompE 565_HW3.pdf`
 

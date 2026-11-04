@@ -16,6 +16,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added task 13 computational load analysis with `step13_computeLoad`, so the
+  report can quote operation counts per macroblock and per frame instead of
+  estimating them by hand. It exports full-window SAD, clipped-border SAD and
+  distance-based tie-selection costs, separating absolute values and the
+  homework comparison convention from the exact C-1 minimum reduction.
+  `src/fullSearchLoad.m` recomputes the same counts for other frame, block and
+  search-radius geometries.
 - Documented the luma-only choice for task 12, including the rationale,
   source-only role of the 4:2:0 Cb/Cr export, and the Y-only scope of residuals,
   reconstruction checks and reported metrics. Chroma motion compensation and
