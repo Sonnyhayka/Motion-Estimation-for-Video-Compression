@@ -13,6 +13,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added `step10_plotMotionVectors` to overlay each P frame's motion vectors on its
+  luma image and save the plots to `results/figures/`, so the estimated motion
+  can be checked visually instead of only through SAD numbers. The vector arrays
+  and clip frame numbers are saved in `motion_vectors.mat` for reuse.
 - Added P-frame decoding from the I-frame reference, motion vectors, and signed
   residuals, with a script that verifies exact reconstruction of frames 17–20.
 - Added a fourth `residual` output to `fullSearchFrame`, the signed
