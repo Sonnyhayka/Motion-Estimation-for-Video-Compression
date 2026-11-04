@@ -47,6 +47,27 @@ methods (Test)
         testCase.verifyError(@() frameTypesFor(16:20, 16, 0), ...
             'frameTypesFor:badGopSize');
     end
+
+    function integerInputsPreserveFramesBeforeAnchor(testCase)
+        types = frameTypesFor(uint8(10:16), uint8(16), uint8(6));
+        testCase.verifyEqual(types, {'I', 'P', 'P', 'P', 'P', 'P', 'I'});
+    end
+
+    function columnFramesPreserveShape(testCase)
+        types = frameTypesFor((16:18).', 16, 6);
+        testCase.verifyEqual(types, {'I'; 'P'; 'P'});
+    end
+
+    function rejectsInvalidFrameArguments(testCase)
+        testCase.verifyError(@() frameTypesFor([16 17; 18 19], 16, 6), ...
+            'frameTypesFor:badFrames');
+        testCase.verifyError(@() frameTypesFor([16 17 + 1i], 16, 6), ...
+            'frameTypesFor:badFrames');
+        testCase.verifyError(@() frameTypesFor(16:20, char(16), 6), ...
+            'frameTypesFor:badAnchor');
+        testCase.verifyError(@() frameTypesFor(16:20, 16, char(6)), ...
+            'frameTypesFor:badGopSize');
+    end
 end
 
 end
