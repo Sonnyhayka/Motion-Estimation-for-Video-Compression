@@ -16,7 +16,6 @@ frameNumbers = S.frameNumbers(pIndices);
 frameDir = fullfile(projectRoot, 'results', 'frames');
 figureDir = fullfile(projectRoot, 'results', 'figures');
 
-% Export the source slice and its planar 4:2:0 representation once.
 writeYuv420(S, fullfile(projectRoot, 'results', 'yuv', 'walk_f16_20_yuv420p.yuv'));
 for j = 1:S.frameCount
     imwrite(S.Y8(:, :, j), fullfile(frameDir, sprintf('f%02d_Y.png', S.frameNumbers(j))));
@@ -33,7 +32,7 @@ minSads = zeros(S.mbGrid.rows, S.mbGrid.cols, nP);
 maxErrors = zeros(nP, 1);
 totalSads = zeros(nP, 1);
 [x, y] = meshgrid((0:S.mbGrid.cols-1) * p.mbSize + (p.mbSize + 1) / 2, ...
-                  (0:S.mbGrid.rows-1) * p.mbSize + (p.mbSize + 1) / 2);
+    (0:S.mbGrid.rows-1) * p.mbSize + (p.mbSize + 1) / 2);
 
 for k = 1:nP
     n = frameNumbers(k);
@@ -75,7 +74,6 @@ for k = 1:nP
         n, referenceFrameNumber, S.mbGrid.count, totalSads(k), maxErrors(k));
 end
 
-% Keep the artifacts from the individual steps available to existing consumers.
 save(fullfile(frameDir, 'residual_frames.mat'), 'residuals', 'frameNumbers', 'referenceFrameNumber');
 save(fullfile(frameDir, 'reconstructed_frames.mat'), 'reconstructedFrames', ...
     'frameNumbers', 'referenceFrameNumber');

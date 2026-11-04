@@ -1,14 +1,5 @@
 function load = fullSearchLoad(frameSize, mbSize, radius)
-%FULLSEARCHLOAD Scalar operation model for luma full search, not CPU profiling.
-% frameSize is [height width]. perMB fields are macroblock-grid maps;
-% perFrame fields are their sums. fullWindow assumes no border clipping.
-% comparisons follows the homework convention: one per candidate. The exact
-% minimum reduction needs C-1; minimumComparisons reports that alternative.
-% implementation also includes the current distance-based tie selection:
-% nRows+nCols squares (each counted as one multiplication), C additions,
-% C inequality tests and a second C-1 minimum reduction, even without ties.
-% abs is counted separately, not as a comparison or conditional negation.
-% Indexing, loop/validation overhead, memory, residuals and decoding excluded.
+% frameSize is [height width]; counting conventions are in docs/computational_load.md.
 p = hw3Params();
 if nargin < 2 || isempty(mbSize)
     mbSize = p.mbSize;
@@ -33,7 +24,6 @@ end
 grid = frameSize / mbSize;
 top = (0:grid(1)-1).' * mbSize + 1;
 left = (0:grid(2)-1) * mbSize + 1;
-% Legal reference-block origins intersect the +/-radius displacement range.
 nRows = min(frameSize(1) - mbSize + 1, top + radius) ...
     - max(1, top - radius) + 1;
 nCols = min(frameSize(2) - mbSize + 1, left + radius) ...
@@ -59,7 +49,6 @@ load.implementation.perMB = load.perMB;
 load.implementation.perMB.multiplications = nRows + nCols;
 load.implementation.perMB.additions = load.perMB.additions + candidates;
 load.implementation.perMB.comparisons = 3 * candidates - 2;
-% Only the core SAD model uses the alternative minimumComparisons field.
 load.implementation.perMB = rmfield(load.implementation.perMB, 'minimumComparisons');
 load.implementation.perFrame = sumCounts(load.implementation.perMB);
 end

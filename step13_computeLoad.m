@@ -11,7 +11,6 @@ p = hw3Params();
 video = VideoReader(fullfile(projectRoot, 'data', 'walk_qcif.avi'));
 loadCounts = fullSearchLoad([video.Height video.Width], p.mbSize, p.searchRadius);
 
-% Per-block CSV follows the same row/column grid as the motion vectors.
 [rows, cols] = ndgrid(1:loadCounts.mbGrid(1), 1:loadCounts.mbGrid(2));
 b = loadCounts.perMB;
 perMB = table(rows(:), cols(:), b.candidates(:), b.multiplications(:), ...
@@ -25,7 +24,11 @@ perFrame = table(models, [counts.candidates].', [counts.multiplications].', ...
     [counts.additions].', [counts.comparisons].', [counts.absoluteValues].', ...
     'VariableNames', {'Model', 'Candidates', 'Multiplications', ...
     'AdditionsSubtractions', 'Comparisons', 'AbsoluteValues'});
-disp(perFrame);
+for k = 1:height(perFrame)
+    fprintf('%s: %d candidates, %d multiplications, %d additions/subtractions, %d comparisons, %d absolute values\n', ...
+        perFrame.Model{k}, perFrame.Candidates(k), perFrame.Multiplications(k), ...
+        perFrame.AdditionsSubtractions(k), perFrame.Comparisons(k), perFrame.AbsoluteValues(k));
+end
 fprintf('Per P-frame: %d x %d macroblocks = %d (Y only).\n', ...
     loadCounts.mbGrid(1), loadCounts.mbGrid(2), loadCounts.mbCount);
 fprintf('SAD comparisons use one per candidate, as in the homework.\n');
@@ -43,8 +46,6 @@ save(fullfile(outputDir, 'full_search_load.mat'), 'loadCounts', 'perMB', 'perFra
 fprintf('[ok] saved operation counts in results/frames/\n');
 
 function counts = addMinimumField(counts)
-% Align struct fields for the display table; comparisons already includes
-% both minimum reductions and the tie mask for this model.
 counts.minimumComparisons = NaN;
 counts = orderfields(counts, {'candidates', 'multiplications', 'additions', ...
     'comparisons', 'minimumComparisons', 'absoluteValues'});
