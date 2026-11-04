@@ -11,6 +11,7 @@ cd('path/to/Motion-Estimation-for-Video-Compression')
 step02_setup          % set up folders, load frames 16 to 20, write previews
 step03_extractFrames  % type the frames I/P and write a 4:2:0 .yuv artifact
 step04_residualFrames % predict each P frame and save signed residuals and previews
+step05_reconstructFrames % decode each P frame and verify it against the target
 ```
 
 `step02_setup` and `step03_extractFrames` bootstrap their own path, so they
@@ -29,10 +30,12 @@ src/extractMacroblock.m pulls one macroblock out of a plane (16x16 luma, 8x8 chr
 src/extractSearchWindow.m pulls the search window around a macroblock out of the I frame
 src/fullSearchMacroblock.m full search block matching with minimum SAD for one macroblock
 src/fullSearchFrame.m  full search across a frame, storing vectors and matched blocks
+src/reconstructPFrame.m rebuilds a P frame from reference, motion vectors and residual
 src/checkProjectCode.m Code Analyzer over src, tests and the root scripts
 step02_setup.m         step 2 demo: load, report, export preview images
 step03_extractFrames.m step 3 demo: type frames, write the 4:2:0 .yuv file
 step04_residualFrames.m compute and save the four P-frame residuals
+step05_reconstructFrames.m reconstruct and verify the four P frames
 tests/                 unit tests, run with runtests('tests')
 results/frames/        generated preview PNGs
 results/yuv/           generated 4:2:0 bitstream, ignored by git
@@ -120,6 +123,13 @@ and their clip frame numbers in `results/frames/residual_frames.mat`, and PNG
 previews in the same folder. The previews map residuals from -255 to 255 onto
 black to white; zero appears approximately mid-gray. The MAT file retains the
 actual differences for subsequent reconstruction.
+
+**Reconstruction.** `reconstructPFrame(reference, vectors, residual)` assembles
+the prediction from the reference and motion vectors, then adds the signed
+residual in `double`. `step05_reconstructFrames` generates the vectors and
+residuals, decodes each P frame, and checks every pixel against its target.
+It saves the reconstructed luma planes and frame numbers in
+`results/frames/reconstructed_frames.mat`, with PNG previews alongside it.
 
 **Frame types.** Frame 16 is the I frame; 17 to 20 are P frames, all predicted
 from frame 16.

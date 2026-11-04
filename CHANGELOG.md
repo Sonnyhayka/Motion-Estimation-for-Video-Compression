@@ -13,6 +13,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added P-frame decoding from the I-frame reference, motion vectors, and signed
+  residuals, with a script that verifies exact reconstruction of frames 17–20.
 - Added a fourth `residual` output to `fullSearchFrame`, the signed
   `double` difference between the target and its motion-compensated match, so
   negative errors survive instead of clipping to zero on `uint8` frames and the
