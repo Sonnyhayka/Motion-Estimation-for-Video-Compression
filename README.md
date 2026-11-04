@@ -12,6 +12,7 @@ step02_setup          % set up folders, load frames 16 to 20, write previews
 step03_extractFrames  % type the frames I/P and write a 4:2:0 .yuv artifact
 step04_residualFrames % predict each P frame and save signed residuals and previews
 step05_reconstructFrames % decode each P frame and verify it against the target
+step10_plotMotionVectors % plot and save motion vectors for each P frame
 ```
 
 `step02_setup` and `step03_extractFrames` bootstrap their own path, so they
@@ -36,10 +37,11 @@ step02_setup.m         step 2 demo: load, report, export preview images
 step03_extractFrames.m step 3 demo: type frames, write the 4:2:0 .yuv file
 step04_residualFrames.m compute and save the four P-frame residuals
 step05_reconstructFrames.m reconstruct and verify the four P frames
+step10_plotMotionVectors.m plot the four P-frame motion vector fields
 tests/                 unit tests, run with runtests('tests')
 results/frames/        generated preview PNGs
 results/yuv/           generated 4:2:0 bitstream, ignored by git
-results/figures/       reserved for motion vector and residual plots
+results/figures/       generated motion vector plots and vector data
 ```
 
 ## Conventions
@@ -130,6 +132,12 @@ residual in `double`. `step05_reconstructFrames` generates the vectors and
 residuals, decodes each P frame, and checks every pixel against its target.
 It saves the reconstructed luma planes and frame numbers in
 `results/frames/reconstructed_frames.mat`, with PNG previews alongside it.
+
+**Motion vector plots.** `step10_plotMotionVectors` overlays unscaled quiver
+arrows on each P-frame luma image and writes PNGs to `results/figures/`. Each
+arrow starts at the center of a target macroblock and points to its match in
+the I frame; image rows increase downward. `motion_vectors.mat` stores the
+9x11x2x4 vector array and corresponding clip frame numbers.
 
 **Frame types.** Frame 16 is the I frame; 17 to 20 are P frames, all predicted
 from frame 16.
