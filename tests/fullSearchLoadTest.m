@@ -28,8 +28,6 @@ methods (Test)
     end
 
     function modelMatchesActualSearchMaps(testCase)
-        % Includes one-block planes, radius zero, chroma-size blocks and a
-        % radius large enough to reach beyond the immediately adjacent block.
         cases = {[16 16], 16, 7; [32 48], 16, 0; ...
             [24 32], 8, 3; [48 64], 16, 40};
         for k = 1:size(cases, 1)

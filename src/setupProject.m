@@ -25,8 +25,8 @@ for k = 1:numel(folders)
 end
 
 if options.Verbose
-    fprintf('Project root : %s\n', projectRoot);
+    fprintf('Project root: %s\n', projectRoot);
     fprintf('Source folder: %s\n', srcDir);
-    fprintf('Results      : %s\n', resultsDir);
+    fprintf('Results: %s\n', resultsDir);
 end
 end

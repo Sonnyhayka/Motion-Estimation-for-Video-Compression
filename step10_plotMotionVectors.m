@@ -17,7 +17,7 @@ mbRows = size(reference, 1) / p.mbSize;
 mbCols = size(reference, 2) / p.mbSize;
 motionVectors = zeros(mbRows, mbCols, 2, numel(pIndices));
 [x, y] = meshgrid((0:mbCols-1) * p.mbSize + (p.mbSize + 1) / 2, ...
-                  (0:mbRows-1) * p.mbSize + (p.mbSize + 1) / 2);
+    (0:mbRows-1) * p.mbSize + (p.mbSize + 1) / 2);
 
 for k = 1:numel(pIndices)
     target = S.Y(:, :, pIndices(k));

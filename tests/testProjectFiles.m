@@ -1,6 +1,4 @@
 function tests = testProjectFiles
-%TESTPROJECTFILES Basic CI smoke tests for the motion estimation repository.
-% Add algorithm-specific unit tests here as MATLAB source is implemented.
 tests = functiontests(localfunctions);
 end
 

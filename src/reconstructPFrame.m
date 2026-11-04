@@ -1,5 +1,4 @@
 function [reconstructed, prediction] = reconstructPFrame(reference, motionVectors, residual, mbSize)
-%RECONSTRUCTPFRAME Decode a P-frame from its reference, vectors and residual.
 % Vectors contain [dx dy] at each target macroblock position.
 if nargin < 4 || isempty(mbSize)
     p = hw3Params();

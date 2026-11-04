@@ -47,8 +47,8 @@ if written ~= bytesWritten
 end
 
 if options.Verbose
-    fprintf('[ok] written     %s\n', yuvPath);
-    fprintf('                %d frames x %d bytes (%d Y + %d Cb + %d Cr)\n', ...
+    fprintf('[ok] written %s\n', yuvPath);
+    fprintf('%d frames x %d bytes (%d Y + %d Cb + %d Cr)\n', ...
         frameCount, planeBytes, yBytes, cbBytes, crBytes);
 end
 end
