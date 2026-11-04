@@ -100,6 +100,22 @@ methods (Test)
             @() writeYuv420(S, fullfile(blocker, 'out.yuv'), 'Verbose', false), ...
             'writeYuv420:badPath');
     end
+
+    function rejectsInvalidGeometryBeforeOpeningFile(testCase)
+        S = struct('Y8', zeros(4, 4, 2, 'uint8'), ...
+            'Cb420', zeros(2, 2, 2), 'Cr420', zeros(2, 2, 2));
+        invalid = {S, S, S, S};
+        invalid{1}.Cb420 = zeros(4, 4, 2);
+        invalid{2}.Cr420 = zeros(2, 2);
+        invalid{3}.Y8 = zeros(3, 4, 2, 'uint8');
+        invalid{4}.Y8 = zeros(4, 4, 2, 2, 'uint8');
+        yuvPath = fullfile(testCase.TempDir, 'invalid.yuv');
+        for k = 1:numel(invalid)
+            testCase.verifyError(@() writeYuv420(invalid{k}, yuvPath, 'Verbose', false), ...
+                'writeYuv420:badGeometry');
+            testCase.verifyFalse(isfile(yuvPath));
+        end
+    end
 end
 
 end

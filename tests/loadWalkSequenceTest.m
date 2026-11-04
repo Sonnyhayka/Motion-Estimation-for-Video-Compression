@@ -129,6 +129,16 @@ methods (Test)
         testCase.verifyError(@() loadWalkSequence(testCase.VideoPath, 0:3), ...
             'loadWalkSequence:badIndices');
     end
+
+    function rejectsMatrixIndices(testCase)
+        testCase.verifyError(@() loadWalkSequence(testCase.VideoPath, [16 18; 17 19]), ...
+            'loadWalkSequence:badIndices');
+    end
+
+    function rejectsComplexIndices(testCase)
+        testCase.verifyError(@() loadWalkSequence(testCase.VideoPath, [16 17 + 1i]), ...
+            'loadWalkSequence:badIndices');
+    end
 end
 
 end
