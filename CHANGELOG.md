@@ -10,9 +10,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - CI now installs Image Processing Toolbox so frame-loading tests can call
   `rgb2ycbcr`, and uses Ubuntu 24.04 to avoid the unsupported Ubuntu 26.04 runner.
+- Saved figures now keep black axis ticks and labels after `imagesc` draws the
+  picture, so the exported residuals and motion-vector plots stay readable on
+  their white background.
 
 ### Added
 
+- Documented the luma-only choice for task 12, including the rationale,
+  source-only role of the 4:2:0 Cb/Cr export, and the Y-only scope of residuals,
+  reconstruction checks and reported metrics. Chroma motion compensation and
+  colour reconstruction remain unimplemented.
 - Added `step11_runFullPipeline` to process P-frames 17 to 20 against I-frame
   16 in one pass, verify exact decoding and residual/SAD consistency, and save
   motion-vector, signed error, target and reconstructed figures as PNG and
