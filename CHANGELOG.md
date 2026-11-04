@@ -13,6 +13,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added `step11_runFullPipeline` to process P-frames 17 to 20 against I-frame
+  16 in one pass, verify exact decoding and residual/SAD consistency, and save
+  motion-vector, signed error, target and reconstructed figures as PNG and
+  editable FIG files. It also exports the source 4:2:0 slice, numeric pipeline
+  results and a per-frame CSV summary.
 - Added `step10_plotMotionVectors` to overlay each P frame's motion vectors on its
   luma image and save the plots to `results/figures/`, so the estimated motion
   can be checked visually instead of only through SAD numbers. The vector arrays

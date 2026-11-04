@@ -8,6 +8,12 @@ reconstruction.
 
 ```matlab
 cd('path/to/Motion-Estimation-for-Video-Compression')
+step11_runFullPipeline % run everything once; save all four figure types for frames 17-20
+```
+
+Or run the individual steps:
+
+```matlab
 step02_setup          % set up folders, load frames 16 to 20, write previews
 step03_extractFrames  % type the frames I/P and write a 4:2:0 .yuv artifact
 step04_residualFrames % predict each P frame and save signed residuals and previews
@@ -38,6 +44,7 @@ step03_extractFrames.m step 3 demo: type frames, write the 4:2:0 .yuv file
 step04_residualFrames.m compute and save the four P-frame residuals
 step05_reconstructFrames.m reconstruct and verify the four P frames
 step10_plotMotionVectors.m plot the four P-frame motion vector fields
+step11_runFullPipeline.m run search and decoding once per P frame; export all figures
 tests/                 unit tests, run with runtests('tests')
 results/frames/        generated preview PNGs
 results/yuv/           generated 4:2:0 bitstream, ignored by git
@@ -139,6 +146,30 @@ arrow starts at the center of a target macroblock and points to its match in
 the I frame; image rows increase downward. `motion_vectors.mat` stores the
 9x11x2x4 vector array and corresponding clip frame numbers.
 
+**Full pipeline.** Run `step11_runFullPipeline` from the project root, or use
+`run('/path/to/project/step11_runFullPipeline.m')`. It loads frames 16 to 20,
+writes the source previews and 4:2:0 bitstream, then performs one full search
+and one decode for each P frame against the fixed I frame 16. Every decoded
+pixel must equal its target, the decoder's prediction must equal the encoder's
+matched blocks, and the absolute residual sum must equal the total block SAD.
+
+For each frame `N` in 17 to 20, `results/figures/` contains both a PNG and an
+editable MATLAB FIG for each of:
+
+- `motion_vectors_frame_N`: unscaled `[dx dy]` arrows over the target luma.
+- `error_frame_N`: signed prediction residual, with the same -255 to 255
+  display limits for every frame and zero at mid-gray.
+- `target_frame_N`: original target luma, displayed from 0 to 255.
+- `reconstructed_frame_N`: decoded luma, displayed from 0 to 255.
+
+The runner also saves pixel-resolution target, residual and reconstructed PNGs
+in `results/frames/`, updates the MAT files produced by steps 04, 05 and 10,
+and writes `results/frames/pipeline_results.mat` containing the reference,
+targets, vectors, predictions, block SADs, signed residuals, reconstructions,
+frame numbers, maximum reconstruction errors and parameters. The accompanying
+`pipeline_summary.csv` reports each target/reference pair, total SAD and maximum
+reconstruction error. Generated products are ignored by git.
+
 **Frame types.** Frame 16 is the I frame; 17 to 20 are P frames, all predicted
 from frame 16.
 
@@ -168,7 +199,8 @@ of this assignment.
       needed because the supplied `.avi` is already valid.
 - [x] **03** Frames 16 to 20 extracted at 176x144 in 4:2:0, typed as I then
       four P frames, with the planar `.yuv` written to `results/yuv/`.
-- [ ] 04 Exhaustive search (SAD), motion vectors, residual frames, reconstruction
+- [x] 04 Exhaustive search (SAD), motion vectors, residual frames, reconstruction;
+      `step11_runFullPipeline` exports all four P-frame results in one run.
 - [ ] 05 Report: results, `quiver` plots, computational load analysis
 
 ## Spec, as fixed by `CompE 565_HW3.pdf`
