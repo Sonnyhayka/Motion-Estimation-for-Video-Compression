@@ -81,7 +81,7 @@ Including tie selection gives 10,760 multiplication equivalents, 37,419,008
 additions/subtractions and 218,460 comparisons across the four P-frames.
 Chroma is excluded because this pipeline does not search Cb or Cr.
 
-Run `step13_computeLoad` to reproduce the counts using the input video's
+Run `scripts/step13_computeLoad.m` to reproduce the counts using the input video's
 dimensions. It exports `full_search_load_per_mb.csv`,
 `full_search_load_per_frame.csv` and `full_search_load.mat` to `results/frames/`.
 The reusable `fullSearchLoad([height width], mbSize, radius)` also supports
