@@ -3,9 +3,9 @@ clc
 
 scriptDir = fileparts(mfilename('fullpath'));
 if isempty(scriptDir)
-    scriptDir = pwd;
+    scriptDir = fullfile(pwd, 'scripts');
 end
-addpath(fullfile(scriptDir, 'src'));
+addpath(fullfile(fileparts(scriptDir), 'src'));
 projectRoot = setupProject();
 p = hw3Params();
 video = VideoReader(fullfile(projectRoot, 'data', 'walk_qcif.avi'));

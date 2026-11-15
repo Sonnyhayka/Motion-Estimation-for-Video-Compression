@@ -116,6 +116,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Moved the `step*.m` scripts into `scripts/`, so the project root only holds
+  the README, the changelog and the project folders. Each script now finds
+  `src/` from its parent folder, and `checkProjectCode` also checks `scripts/`.
+- Rewrote `README.md` as a short guide to what the project does, how to run
+  the pipeline and how to run the tests.
+- `docs/computational_load.md` now points to `scripts/step13_computeLoad.m`.
 - Frame structure is now derived from the GOP anchor in `hw3Params` instead of
   being printed as literal text, so the reported `IPPPP` and the typing the
   decoder will use cannot disagree.
@@ -132,3 +138,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   a fresh session without any manual setup.
 - Code Analyzer failures in tests now list every offending file and line in a
   single message, making lint regressions quicker to locate.
+
+### Removed
+
+- Removed the course PDFs (homework, sample output and MATLAB help) and
+  `CompE_565_HW3_Motion_Estimation.md` from the repository, since they are
+  course materials rather than project files.

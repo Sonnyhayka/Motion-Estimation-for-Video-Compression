@@ -3,16 +3,18 @@ clc
 
 scriptDir = fileparts(mfilename('fullpath'));
 if isempty(scriptDir)
-    scriptDir = pwd;
+    scriptDir = fullfile(pwd, 'scripts');
 end
-projectRoot = scriptDir;
+projectRoot = fileparts(scriptDir);
 addpath(fullfile(projectRoot, 'src'));
 
 projectRoot = setupProject();
 videoPath = fullfile(projectRoot, 'data', 'walk_qcif.avi');
 
+tic;
 p = hw3Params();
 S = loadWalkSequence(videoPath, p.frameNumbers);
+elapsed = toc;
 
 info = S.videoInfo;
 
@@ -25,12 +27,6 @@ fprintf('%d frames, %g fps, %.2f s, %dx%d, %s (bpp %d)\n', ...
 fprintf('\nExtracted frames\n');
 fprintf('[ok] extracted frames %s, %d frames, %dx%d each\n', ...
     mat2str(S.frameNumbers), S.frameCount, info.height, info.width);
-fprintf('[ok] structure %s (GOP %d anchored at frame %d)\n', ...
-    strjoin(S.frameTypes, ''), p.gopSize, p.gopAnchor);
-fprintf('[ok] i frame %s, reference for every P frame\n', ...
-    mat2str(S.iFrame));
-fprintf('[ok] p frames %s, all predicted from frame %d\n', ...
-    mat2str(S.pFrames), S.iFrame(1));
 fprintf('[ok] luma Y: %dx%d double, range %g to %g\n', ...
     size(S.Y, 1), size(S.Y, 2), min(S.Y, [], 'all'), max(S.Y, [], 'all'));
 fprintf('[ok] chroma Cb: %dx%d Cr: %dx%d (%s)\n', ...
@@ -39,32 +35,40 @@ fprintf('[ok] chroma Cb: %dx%d Cr: %dx%d (%s)\n', ...
 fprintf('[ok] mb grid %d cols x %d rows = %d macroblocks per frame (%dx%d)\n', ...
     S.mbGrid.cols, S.mbGrid.rows, S.mbGrid.count, p.mbSize, p.mbSize);
 
-fprintf('\nFrame types\n');
-fprintf('frame type reference\n');
+fprintf('\nSpec from CompE 565_HW3.pdf\n');
+fprintf('[spec] window %dx%d centered, so w = %g\n', ...
+    p.searchWindow, p.searchWindow, p.searchRadius);
+fprintf('[spec] candidates (2w+1)^2 = %d per macroblock\n', p.candidates);
+fprintf('[spec] cost %d x %d = %d adds per macroblock\n', ...
+    p.candidates, p.addsPerCandidate, p.candidates * p.addsPerCandidate);
+fprintf('[spec] structure I%s, GOP %d\n', ...
+    repmat('P', 1, p.gopSize - 1), p.gopSize);
+fprintf('[spec] reference all P frames predicted from the I frame (frame %d)\n', ...
+    p.frameNumbers(p.iFrameIndex));
+
+fprintf('\nPer frame luma\n');
+fprintf('frame mean std min max\n');
 for j = 1:S.frameCount
-    if strcmp(S.frameTypes{j}, 'I')
-        ref = 'none';
-    else
-        ref = sprintf('%d', S.iFrame(1));
-    end
-    fprintf('%d %s %s\n', S.frameNumbers(j), S.frameTypes{j}, ref);
+    y = S.Y(:, :, j);
+    fprintf('%d %.2f %.2f %.0f %.0f\n', ...
+        S.frameNumbers(j), mean(y, 'all'), std(y, 0, 'all'), ...
+        min(y, [], 'all'), max(y, [], 'all'));
 end
 
-yuvDir = fullfile(projectRoot, 'results', 'yuv');
-yuvPath = fullfile(yuvDir, sprintf('walk_f%d_%d_yuv420p.yuv', ...
-    S.frameNumbers(1), S.frameNumbers(end)));
-bytesWritten = writeYuv420(S, yuvPath);
-
-expectedBytes = size(S.Y, 1) * size(S.Y, 2) * 1.5 * S.frameCount;
-if bytesWritten ~= expectedBytes
-    error('step03_extractFrames:byteCount', ...
-        'Expected %d bytes for %d QCIF frames, wrote %d.', ...
-        expectedBytes, S.frameCount, bytesWritten);
+frameDir = fullfile(projectRoot, 'results', 'frames');
+if ~isfolder(frameDir)
+    mkdir(frameDir);
 end
 
-fprintf('[ok] yuv420p %s\n', relativePath(yuvPath, projectRoot));
-fprintf('[ok] bytes %d total = %d bytes per frame x %d frames\n', ...
-    bytesWritten, bytesWritten / S.frameCount, S.frameCount);
+for j = 1:S.frameCount
+    n = S.frameNumbers(j);
+    imwrite(S.Y8(:, :, j), fullfile(frameDir, sprintf('f%02d_Y.png', n)));
+    imwrite(S.rgb(:, :, :, j), fullfile(frameDir, sprintf('f%02d_RGB.png', n)));
+end
+
+fprintf('\n[ok] written results/frames/f%02d_Y.png to f%02d_Y.png plus RGB\n', ...
+    S.frameNumbers(1), S.frameNumbers(end));
+fprintf('[ok] loaded %d frames in %.3f s\n', S.frameCount, elapsed);
 
 function p = relativePath(absPath, root)
 p = absPath;

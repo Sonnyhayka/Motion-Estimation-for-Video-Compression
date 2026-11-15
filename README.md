@@ -1,40 +1,51 @@
-# CompE 565 HW3: Motion Estimation for Video Compression
+# Motion Estimation for Video Compression
 
-Full-search motion estimation on frames 16-20 of `data/walk_qcif.avi`.
-Frames are 176x144 pixels, with 16x16 macroblocks and a centered 30x30
-search window (radius 7). Frames 17-20 use frame 16 as their I-frame
-reference in an IPPPPP structure with GOP size 6. Matching uses minimum
-SAD; DCT and quantization are omitted.
+Full-search block-matching motion estimation in MATLAB, written for CompE 565 Homework 3.
 
-Requires MATLAB with Image Processing Toolbox. Run from the project root:
+The project uses frames 16 to 20 of the QCIF `walk_qcif` sequence (176x144, 4:2:0). Frame 16 is the I-frame, and P-frames 17 to 20 are all predicted from it (IPPPPP, GOP 6).
+
+## What it does
+
+- Extracts frames 16 to 20 and converts them to YCbCr 4:2:0.
+- Finds a motion vector for every 16x16 macroblock with full search over a 30x30 window, using minimum SAD.
+- Builds the residual (difference) frame for each P-frame and decodes the reconstructed frame.
+- Plots the motion vectors with `quiver`.
+- Counts the multiplications, additions and comparisons of the search.
+
+Motion estimation runs on the luma (Y) plane. DCT and quantization are not part of this assignment.
+
+## Requirements
+
+MATLAB R2020a or newer with the Image Processing Toolbox.
+
+## How to run
+
+Open MATLAB in the project root and run:
 
 ```matlab
-step11_runFullPipeline
-step13_computeLoad
+run(fullfile('scripts', 'step11_runFullPipeline.m'))
+run(fullfile('scripts', 'step13_computeLoad.m'))
 ```
 
-Results are saved under `results/`:
+The first script runs the whole pipeline for P-frames 17 to 20. The second prints and saves the operation counts. The other scripts in `scripts/` run single steps of the pipeline.
 
-- `figures/`: motion vectors, residuals, targets and reconstructions as PNG and FIG.
-- `frames/`: preview images, numeric MAT files, pipeline summary and operation counts.
-- `yuv/`: the five source frames as planar 8-bit 4:2:0 YUV.
+Outputs are written to `results/`:
 
-Motion estimation, residuals and reconstruction cover luma (Y) only.
-Cb/Cr are subsampled and exported, without motion compensation or reconstruction.
-The pipeline checks exact Y reconstruction for all four P-frames.
+- `results/figures/`: motion vectors, residual, target and reconstructed frames.
+- `results/frames/`: frame images, `.mat` data and `.csv` tables.
+- `results/yuv/`: frames 16 to 20 as planar 8-bit YUV 4:2:0.
 
-Individual steps are available in the root `step*.m` scripts; shared functions
-are in `src/`. See [computational load](docs/computational_load.md) for counting conventions.
-
-Run the tests:
+## Run the tests
 
 ```matlab
 assertSuccess(runtests('tests'));
 ```
 
-Assignment sources: [homework](CompE%20565_HW3.pdf),
-[sample output](HW_3_SampleOutput.pdf) and
-[MATLAB help](MATLAB%20Help_Project%203.pdf).
-Where the examples conflict, the homework's 30x30 window, fixed I-frame
-reference and `sum(abs(...))` SAD definition take precedence. Search windows
-are clipped at frame boundaries.
+## Project layout
+
+- `src/`: functions for loading frames, full search, residuals, reconstruction and operation counts.
+- `scripts/`: scripts that run the pipeline step by step.
+- `tests/`: unit tests.
+- `data/`: the input video `walk_qcif.avi`.
+- `docs/`: notes on the computational load.
+- `results/`: generated output (not tracked by git).
