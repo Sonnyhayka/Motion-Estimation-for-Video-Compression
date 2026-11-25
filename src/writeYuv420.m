@@ -19,9 +19,9 @@ if isempty(S.Y8) || ndims(S.Y8) > 3 || ...
 end
 Cb8 = uint8(round(S.Cb420));
 Cr8 = uint8(round(S.Cr420));
-yBytes = size(S.Y8, 1) * size(S.Y8, 2);
-cbBytes = size(Cb8, 1) * size(Cb8, 2);
-crBytes = size(Cr8, 1) * size(Cr8, 2);
+yBytes = height * width;
+cbBytes = yBytes / 4;
+crBytes = yBytes / 4;
 planeBytes = yBytes + cbBytes + crBytes;
 bytesWritten = planeBytes * frameCount;
 

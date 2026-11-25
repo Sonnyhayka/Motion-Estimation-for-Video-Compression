@@ -5,9 +5,7 @@ scriptDir = fileparts(mfilename('fullpath'));
 if isempty(scriptDir)
     scriptDir = fullfile(pwd, 'scripts');
 end
-projectRoot = fileparts(scriptDir);
-addpath(fullfile(projectRoot, 'src'));
-
+addpath(fullfile(fileparts(scriptDir), 'src'));
 projectRoot = setupProject();
 videoPath = fullfile(projectRoot, 'data', 'walk_qcif.avi');
 
@@ -65,12 +63,3 @@ end
 fprintf('[ok] yuv420p %s\n', relativePath(yuvPath, projectRoot));
 fprintf('[ok] bytes %d total = %d bytes per frame x %d frames\n', ...
     bytesWritten, bytesWritten / S.frameCount, S.frameCount);
-
-function p = relativePath(absPath, root)
-p = absPath;
-prefix = [root filesep];
-if strncmpi(absPath, prefix, numel(prefix))
-    p = absPath(numel(prefix) + 1:end);
-end
-p = strrep(p, filesep, '/');
-end
