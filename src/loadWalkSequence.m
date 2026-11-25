@@ -29,6 +29,10 @@ end
 reader = VideoReader(videoPath);
 width = reader.Width;
 height = reader.Height;
+if height ~= 144 || width ~= 176
+    error('loadWalkSequence:badGeometry', ...
+        'Expected a 176x144 QCIF frame, got %dx%d.', width, height);
+end
 
 nWant = numel(frameIndices);
 frames = cell(1, nWant);
@@ -54,10 +58,6 @@ if ~isempty(missing)
         mat2str(frameIndices(missing)), totalFrames);
 end
 
-if height ~= 144 || width ~= 176
-    error('loadWalkSequence:badGeometry', ...
-        'Expected a 176x144 QCIF frame, got %dx%d.', width, height);
-end
 if ndims(frames{1}) ~= 3 || size(frames{1}, 3) ~= 3
     error('loadWalkSequence:notColour', ...
         ['Expected RGB frames with 3 colour planes, got %s.\n' ...
@@ -109,7 +109,7 @@ end
 referenceIndex = find(frameIndices == iFrame(1), 1);
 
 videoInfo = struct( ...
-    'path', whichPath(videoPath), ...
+    'path', canonicalPath(videoPath), ...
     'frameRate', reader.FrameRate, ...
     'duration', reader.Duration, ...
     'numFrames', reportedFrames, ...
@@ -140,7 +140,7 @@ out = 0.25 * (plane(1:2:end, 1:2:end) + plane(1:2:end, 2:2:end) ...
     + plane(2:2:end, 1:2:end) + plane(2:2:end, 2:2:end));
 end
 
-function p = whichPath(videoPath)
+function p = canonicalPath(videoPath)
 try
     p = char(java.io.File(videoPath).getCanonicalPath());
 catch

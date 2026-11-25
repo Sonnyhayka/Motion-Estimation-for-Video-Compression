@@ -1,5 +1,5 @@
-function load = fullSearchLoad(frameSize, mbSize, radius)
-% frameSize is [height width]; counting conventions are in docs/computational_load.md.
+function counts = fullSearchLoad(frameSize, mbSize, radius)
+% frameSize is [height width]; see docs/computational_load.md.
 p = hw3Params();
 if nargin < 2 || isempty(mbSize)
     mbSize = p.mbSize;
@@ -30,27 +30,27 @@ nCols = min(frameSize(2) - mbSize + 1, left + radius) ...
     - max(1, left - radius) + 1;
 candidates = nRows * nCols;
 
-load.frameSize = frameSize;
-load.mbSize = mbSize;
-load.radius = radius;
-load.mbGrid = grid;
-load.mbCount = prod(grid);
-load.perMB = sadCounts(candidates, mbSize);
-load.perFrame = sumCounts(load.perMB);
-load.fullWindow.perMB = sadCounts((2 * radius + 1)^2, mbSize);
-names = fieldnames(load.fullWindow.perMB);
+counts.frameSize = frameSize;
+counts.mbSize = mbSize;
+counts.radius = radius;
+counts.mbGrid = grid;
+counts.mbCount = prod(grid);
+counts.perMB = sadCounts(candidates, mbSize);
+counts.perFrame = sumCounts(counts.perMB);
+counts.fullWindow.perMB = sadCounts((2 * radius + 1)^2, mbSize);
+names = fieldnames(counts.fullWindow.perMB);
 for k = 1:numel(names)
     name = names{k};
-    load.fullWindow.perFrame.(name) = ...
-        load.fullWindow.perMB.(name) * load.mbCount;
+    counts.fullWindow.perFrame.(name) = ...
+        counts.fullWindow.perMB.(name) * counts.mbCount;
 end
 
-load.implementation.perMB = load.perMB;
-load.implementation.perMB.multiplications = nRows + nCols;
-load.implementation.perMB.additions = load.perMB.additions + candidates;
-load.implementation.perMB.comparisons = 3 * candidates - 2;
-load.implementation.perMB = rmfield(load.implementation.perMB, 'minimumComparisons');
-load.implementation.perFrame = sumCounts(load.implementation.perMB);
+counts.implementation.perMB = counts.perMB;
+counts.implementation.perMB.multiplications = nRows + nCols;
+counts.implementation.perMB.additions = counts.perMB.additions + candidates;
+counts.implementation.perMB.comparisons = 3 * candidates - 2;
+counts.implementation.perMB = rmfield(counts.implementation.perMB, 'minimumComparisons');
+counts.implementation.perFrame = sumCounts(counts.implementation.perMB);
 end
 
 function counts = sadCounts(candidates, mbSize)

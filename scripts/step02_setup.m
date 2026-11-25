@@ -5,9 +5,7 @@ scriptDir = fileparts(mfilename('fullpath'));
 if isempty(scriptDir)
     scriptDir = fullfile(pwd, 'scripts');
 end
-projectRoot = fileparts(scriptDir);
-addpath(fullfile(projectRoot, 'src'));
-
+addpath(fullfile(fileparts(scriptDir), 'src'));
 projectRoot = setupProject();
 videoPath = fullfile(projectRoot, 'data', 'walk_qcif.avi');
 
@@ -56,9 +54,6 @@ for j = 1:S.frameCount
 end
 
 frameDir = fullfile(projectRoot, 'results', 'frames');
-if ~isfolder(frameDir)
-    mkdir(frameDir);
-end
 
 for j = 1:S.frameCount
     n = S.frameNumbers(j);
@@ -69,12 +64,3 @@ end
 fprintf('\n[ok] written results/frames/f%02d_Y.png to f%02d_Y.png plus RGB\n', ...
     S.frameNumbers(1), S.frameNumbers(end));
 fprintf('[ok] loaded %d frames in %.3f s\n', S.frameCount, elapsed);
-
-function p = relativePath(absPath, root)
-p = absPath;
-prefix = [root filesep];
-if strncmpi(absPath, prefix, numel(prefix))
-    p = absPath(numel(prefix) + 1:end);
-end
-p = strrep(p, filesep, '/');
-end

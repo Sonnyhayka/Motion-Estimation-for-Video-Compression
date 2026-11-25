@@ -7,40 +7,29 @@ end
 projectRoot = fileparts(fileparts(mfilename('fullpath')));
 
 targets = [ ...
-    collectMFiles(fullfile(projectRoot, 'src'), true); ...
-    collectMFiles(projectRoot, false); ...
-    collectMFiles(fullfile(projectRoot, 'scripts'), true); ...
-    collectMFiles(fullfile(projectRoot, 'tests'), true)];
-targets = unique(targets);
+    collectMFiles(fullfile(projectRoot, 'src')); ...
+    collectMFiles(fullfile(projectRoot, 'scripts')); ...
+    collectMFiles(fullfile(projectRoot, 'tests'))];
 
 results = cell(1, numel(targets));
 for k = 1:numel(targets)
     results{k} = lintOne(targets{k});
 end
-
 findings = [results{:}];
 
-if ~options.Verbose
-    if options.ExitOnFailure && ~isempty(findings)
-        error('checkProjectCode:findings', ...
-            'Code Analyzer reported %d finding(s).', numel(findings));
+if options.Verbose
+    fprintf('Code Analyzer\n');
+    fprintf('files checked: %d\n', numel(targets));
+    if isempty(findings)
+        fprintf('[ok] no findings\n');
+    else
+        for k = 1:numel(findings)
+            fprintf('[warn] %s:%d: %s\n', relativePath(findings(k).file, projectRoot), ...
+                findings(k).line, findings(k).message);
+        end
+        fprintf('[fail] %d finding(s) across %d file(s)\n', ...
+            numel(findings), numel(unique({findings.file})));
     end
-    return
-end
-
-fprintf('Code Analyzer\n');
-fprintf('files checked: %d\n', numel(targets));
-
-if isempty(findings)
-    fprintf('[ok] no findings\n');
-else
-    for k = 1:numel(findings)
-        rel = relativePath(findings(k).file, projectRoot);
-        fprintf('[warn] %s:%d: %s\n', rel, findings(k).line, findings(k).message);
-        fprintf('::error file=%s,line=%d::%s\n', rel, findings(k).line, findings(k).message);
-    end
-    fprintf('[fail] %d finding(s) across %d file(s)\n', ...
-        numel(findings), numel(unique({findings.file})));
 end
 
 if options.ExitOnFailure && ~isempty(findings)
@@ -68,30 +57,16 @@ for j = 1:numel(report)
 end
 end
 
-function files = collectMFiles(folder, recursive)
+function files = collectMFiles(folder)
 files = cell(0, 1);
 if ~isfolder(folder)
     return
 end
 
-if recursive
-    items = dir(fullfile(folder, '**', '*.m'));
-else
-    items = dir(fullfile(folder, '*.m'));
-end
-
+items = dir(fullfile(folder, '**', '*.m'));
 items = items(~[items.isdir]);
-files = cell(numel(items), 1);
-for k = 1:numel(items)
-    files{k} = fullfile(items(k).folder, items(k).name);
+if isempty(items)
+    return
 end
-end
-
-function p = relativePath(absPath, root)
-p = absPath;
-prefix = [root filesep];
-if strncmpi(absPath, prefix, numel(prefix))
-    p = absPath(numel(prefix) + 1:end);
-end
-p = strrep(p, filesep, '/');
+files = fullfile({items.folder}, {items.name}).';
 end

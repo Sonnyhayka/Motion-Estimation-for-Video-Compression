@@ -18,7 +18,7 @@ outputDir = fullfile(projectRoot, 'results', 'frames');
 for k = 1:numel(pIndices)
     target = S.Y(:, :, pIndices(k));
     [~, ~, ~, residuals(:, :, k)] = fullSearchFrame(target, reference);
-    % Fixed display scale only; the MAT file retains the signed differences.
+    % Display only; the MAT file keeps the signed values.
     preview = uint8(round((residuals(:, :, k) + 255) / 2));
     imwrite(preview, fullfile(outputDir, sprintf('residual_frame_%d.png', frameNumbers(k))));
     fprintf('[ok] residual frame %d, range %g to %g\n', frameNumbers(k), ...
